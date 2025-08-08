@@ -17,12 +17,6 @@ import openai
 # Load environment variables from .env file
 load_dotenv()
 
-# --- IMPORTANT: Configure Tesseract path if it's not in your system's PATH ---
-# Uncomment and set this path if you encounter "TesseractNotFoundError"
-# For Windows example:
-# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-# For macOS example (often not needed if installed via Homebrew):
-# pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
 
 # Configure OpenAI API key
 try:
@@ -41,7 +35,6 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# In-memory store for tracking uploaded file_ids (metadata, not actual chunks)
 uploaded_files_info: Dict[str, Any] = {}
 next_file_id = 1
 
@@ -50,7 +43,6 @@ next_file_id = 1
 async def read_root():
     return {"message": "Smart RAG API is running!"}
 
-# Document Ingestion Endpoint (from Step 2, unchanged)
 @app.post("/upload/", summary="Uploads a document for processing and returns a file_id")
 async def upload_document(file: UploadFile = File(..., description="The document file to upload (e.g., .pdf, .docx, .txt, .jpg, .png, .csv, .db)")):
     global next_file_id
@@ -152,7 +144,6 @@ async def get_llm_response(query: str, context: str) -> str:
         )
 
 
-# Query Endpoint (Updated for Step 4)
 class QueryRequest(BaseModel):
     question: str
     image_base64: str = None # Optional: Base64 encoded image for image-based questions
@@ -194,14 +185,10 @@ async def query_document(request: QueryRequest):
                 detail=f"Error processing image_base64 for OCR: {e}"
             )
 
-    # Perform vector search (from Step 3)
     # Retrieve top N relevant chunks. You can adjust 'k' based on desired context length.
     relevant_chunks_info = vector_store.search(query=query_text, k=5)
 
     if not relevant_chunks_info:
-        # If no relevant chunks are found, inform the user/LLM.
-        # We can still pass this to LLM to say it doesn't have info, or return early.
-        # For now, let's return a specific message.
         return QueryResponse(
             question=request.question,
             retrieved_context=[],
