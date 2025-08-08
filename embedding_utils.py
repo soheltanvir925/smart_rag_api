@@ -90,31 +90,15 @@ class VectorStore:
 
     def clear_doc(self, doc_id: str):
         """Removes all chunks associated with a specific doc_id from the store."""
-        # This is a simplified approach for FAISS IndexFlatL2 as it doesn't support
-        # direct deletion by ID easily. A proper solution for deletion
-        # would involve recreating the index or using more advanced FAISS indices
-        # or a different vector store (like ChromaDB mentioned in the task).
-        # For this assignment, we'll mark them for deletion and handle implicitly.
-        # If the task required efficient deletion, ChromaDB would be better.
 
         if doc_id not in self.doc_id_to_index_range:
             print(f"Document ID {doc_id} not found.")
             return
 
         print(f"Removing document {doc_id} from the store. Note: FAISS IndexFlatL2 doesn't support efficient deletion.")
-        # Clear metadata for this doc_id
-        # This is an inefficient way to 'delete' from metadata,
-        # but for demonstration with IndexFlatL2 it will work.
-        # A robust solution needs index reconstruction or a different FAISS index type.
+
         self.metadata = [m for m in self.metadata if m["doc_id"] != doc_id]
         del self.doc_id_to_index_range[doc_id]
-        # Rebuilding index would be required for actual removal from FAISS,
-        # which is outside the scope of this basic IndexFlatL2 example for deletion.
-        # For simplicity, we'll assume new documents add on, and this "deletion"
-        # primarily affects metadata lookup.
-        # A more practical approach for deletion with FAISS is to create a new index
-        # with remaining vectors, or use IDs mapping.
 
-# Initialize the global vector store instance
-# Dimension for text-embedding-ada-002 is 1536
+
 vector_store = VectorStore(dimension=1536)
